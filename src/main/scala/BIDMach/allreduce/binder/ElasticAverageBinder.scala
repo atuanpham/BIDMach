@@ -2,6 +2,7 @@ package BIDMach.allreduce.binder
 
 import java.util.logging.Logger
 
+import BIDMach.Learner
 import BIDMach.allreduce.binder.AllreduceBinder.{DataSink, DataSource}
 import BIDMach.models.Model
 import BIDMat.{FMat, GMat}
@@ -13,7 +14,8 @@ import BIDMat.{FMat, GMat}
   * @param model
   * @param alphaFromIter
   */
-class ElasticAverageBinder(model: Model, alphaFromIter: Int => Float, logger: Logger) extends AllreduceBinder {
+class ElasticAverageBinder(model: Model, alphaFromIter: Int => Float, learner: Learner) extends AllreduceBinder {
+  learner.myLogger.info(s"Logger active within binder")
   var reduceCount = 0
   override lazy val totalDataSize: Int = {
     var ret = 0
@@ -51,7 +53,7 @@ class ElasticAverageBinder(model: Model, alphaFromIter: Int => Float, logger: Lo
 
   override def dataSink: DataSink = reducedOutput => {
     reduceCount.synchronized {
-      logger.info(s"allreduce iteration ${reduceCount}")
+      learner.myLogger.info(s"allreduce iteration ${reduceCount}")
       reduceCount += 1
     }
     val reducedData = reducedOutput.data
